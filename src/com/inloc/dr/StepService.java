@@ -440,7 +440,7 @@ public class StepService extends Service implements LocationListener{
 	}
 	
 	private class DoPost extends AsyncTask<Void, Void, Boolean>{
-		public final String NESL_IP = "http://172.17.5.14:22056";
+		public final String NESL_IP = "http://172.17.5.253:22056";
 		public final String msg_storage = "step_service_post.db";
 		public File database;
 		public DoPost(){
