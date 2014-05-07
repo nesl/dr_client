@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="@dimen/margin" 
+    android:background="@color/screen_background">
+    
+    <LinearLayout android:id="@+id/row_1"
+        android:orientation="horizontal" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:paddingBottom="@dimen/row_spacing">
+    
+        <LinearLayout android:id="@+id/box_steps"
+            android:orientation="vertical"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingRight="@dimen/margin"
+            android:layout_weight="1">
+        
+            <TextView android:id="@+id/step_value"
+                android:textSize="@dimen/value"
+                android:layout_width="fill_parent" 
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal" 
+                android:background="@color/display_background" 
+                android:paddingLeft="@dimen/padding" 
+                android:paddingRight="@dimen/padding" 
+                android:paddingTop="@dimen/padding"
+                android:text=""/>
+            
+            <TextView android:id="@+id/step_units"
+                android:gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/units" 
+                android:text="@string/steps" 
+                android:background="@color/display_background" 
+                android:paddingBottom="@dimen/padding"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/box_angle"
+            android:orientation="vertical"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingRight="@dimen/margin"
+            android:layout_weight="1">
+        
+            <TextView android:id="@+id/angle_value"
+                android:textSize="@dimen/value"
+                android:layout_width="fill_parent" 
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal" 
+                android:background="@color/display_background" 
+                android:paddingLeft="@dimen/padding" 
+                android:paddingRight="@dimen/padding" 
+                android:paddingTop="@dimen/padding"
+                android:text=""/>
+            
+            <TextView android:id="@+id/angle_units"
+                android:gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/units" 
+                android:text="@string/angle" 
+                android:background="@color/display_background" 
+                android:paddingBottom="@dimen/padding"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Desired pace/speed row -->
+    <LinearLayout
+        android:id="@+id/canvas_row"
+        android:paddingTop="@dimen/row_spacing" 
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+    
+        <!-- Line Plot goes here -->
+   
+
+    </LinearLayout>
+   
+</LinearLayout>
