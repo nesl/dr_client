@@ -58,6 +58,7 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -114,6 +115,13 @@ public class StepService extends Service implements LocationListener{
     private File current_file;
 	public FileWriter fw;
 	public static ArrayList<File> record_files = new ArrayList<File>();	// Add helper method that searches directory for matching files.
+	// http post defines
+	private static final String POST_TYPE_DR  = "0";
+	private static final String POST_TYPE_GPS = "1";
+	// 10 second ticker method
+	Handler dataPostTicker = new Handler();
+	private static final int DELAY_DATA_POST = 10000; // 10 sec
+	
 	
     /**
      * Class for clients to access.  Because we know this service always
@@ -190,6 +198,15 @@ public class StepService extends Service implements LocationListener{
 
         // Tell the user we started.
         Toast.makeText(this, getText(R.string.started), Toast.LENGTH_SHORT).show();
+        
+        // Fire up the HTTP poster method
+        dataPostTicker.postDelayed(new Runnable(){
+            public void run(){
+            	if(record_files.size() > 1)
+    				new DoPost().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            	dataPostTicker.postDelayed(this, DELAY_DATA_POST);
+            }
+        }, DELAY_DATA_POST);
     }
     
     @Override
@@ -316,7 +333,7 @@ public class StepService extends Service implements LocationListener{
     		try{
     			angle_post += 
     					URLEncoder.encode("time","UTF-8") + "=" + URLEncoder.encode("" + System.currentTimeMillis(),"UTF-8") + "&" +
-    					URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode("dr","UTF-8") + "&" + 
+    					URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode(POST_TYPE_DR,"UTF-8") + "&" + 
     					URLEncoder.encode("val1","UTF-8") + "=" + URLEncoder.encode("" + value,"UTF-8") + "&" +
     					URLEncoder.encode("val2","UTF-8") + "=" + URLEncoder.encode("" + (mSteps - lSteps),"UTF-8");
     		}catch(UnsupportedEncodingException e){e.printStackTrace();}
@@ -394,13 +411,12 @@ public class StepService extends Service implements LocationListener{
 		try{
 		gps_loc += 
 			URLEncoder.encode("time","UTF-8") + "=" + URLEncoder.encode("" + System.currentTimeMillis(),"UTF-8") + "&" + 
-			URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode("gps","UTF-8") + "&" + 
+			URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode(POST_TYPE_GPS,"UTF-8") + "&" + 
 			URLEncoder.encode("val1","UTF-8") + "=" + URLEncoder.encode("" + location.getLatitude(),"UTF-8") + "&" + 
 			URLEncoder.encode("val2","UTF-8") + "=" + URLEncoder.encode("" + location.getLongitude(), "UTF-8");
 		}catch(UnsupportedEncodingException e){e.printStackTrace();}
 		// POST to server.
 		logForPost(gps_loc);
-        Toast.makeText(this, "GPS Location Changed!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -423,8 +439,9 @@ public class StepService extends Service implements LocationListener{
 			current_file = new File(mOutputDir.getAbsolutePath(), System.currentTimeMillis() + ".log");
 			record_files.add(current_file);
 			Log.i(TAG,"Added new record. [" + records + "]");
-			if(record_files.size() > 1)
-				new DoPost().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+			// MOVED to periodic task
+			//if(record_files.size() > 1)
+			//	new DoPost().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 		}
 		try{
 			fw = new FileWriter(current_file, true);
@@ -441,6 +458,7 @@ public class StepService extends Service implements LocationListener{
 		public final String SERVER_ADDRESS = "http://" + SERVER_IP.trim() + ":" + SERVER_PORT.trim();
 		public final String msg_storage = "step_service_post.db";
 		public File database;
+		
 		public DoPost(){
 			database = new File(Environment.getExternalStorageDirectory(),msg_storage);
 		}
