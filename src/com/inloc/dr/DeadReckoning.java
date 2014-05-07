@@ -1,24 +1,28 @@
 /*
- *  Pedometer - Android App
- *  Copyright (C) 2009 Levente Bagi
+ *  NESL - InLoc
+ *  
+ *  Dead Reckoning Service
+ *  
+ *  This file is part of the NESL InLoc Service Suite.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ *    The NESL InLoc Service Suite is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    NESL InLoc Service Suite is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+
+ *    You should have received a copy of the GNU General Public License
+ *    along with The NESL InLoc Service Suite.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* Package Declaration */
 package com.inloc.dr;
 
-
+/* Imports */
 import com.inloc.dr.R;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -34,28 +38,21 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 
+/* Main Activity */
 public class DeadReckoning extends Activity {
 	// main activity tag
-	private static final String TAG = "DeadReckoning";
+	private static final String TAG = "InLoc_DR";
 	// global settings
     private SharedPreferences mSettings;
     // pedometer settings
     private PedometerSettings mPedometerSettings;
-    // utilities
-    private Utils mUtils;
     // get step and angle text views
     private TextView mStepValueView;
     private TextView mAngleValueView;
-    // dead reckoning variables
+    // dead reckoning views
     private int mStepValue;
     private int mAngleValue;
     // Set when user selected Quit from menu, can be used by onPause, onStop, onDestroy
@@ -65,6 +62,7 @@ public class DeadReckoning extends Activity {
     private StepService mService;
     // path canvas
     private PathView mPathView;
+    private final int PATHVIEW_ID = 100;
 
     
     /** Called when the activity is first created. */
@@ -76,26 +74,31 @@ public class DeadReckoning extends Activity {
         mStepValue = 0;
         mAngleValue = 0;
         
+        // set the view
         setContentView(R.layout.main);
-        mUtils = Utils.getInstance();
         
         // initialize path canvas
         final LinearLayout view = (LinearLayout) findViewById(R.id.canvas_row);
         mPathView = new PathView(this);
+        mPathView.setId(PATHVIEW_ID);
         view.addView(mPathView);
+        
     }
     
+    /** Called when the activity is started */
     @Override
     protected void onStart() {
         Log.i(TAG, "[ACTIVITY] onStart");
         super.onStart();
     }
 
+    /** Called when the activity is resumed */
     @Override
     protected void onResume() {
         Log.i(TAG, "[ACTIVITY] onResume");
         super.onResume();
         
+        // get default preferences
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
         mPedometerSettings = new PedometerSettings(mSettings);
                 
@@ -113,12 +116,14 @@ public class DeadReckoning extends Activity {
         
         mPedometerSettings.clearServiceRunning();
 
+        // re-hook the UI views
         mStepValueView     = (TextView) findViewById(R.id.step_value);
         mAngleValueView	   = (TextView) findViewById(R.id.angle_value);
+        mPathView          = (PathView) findViewById(PATHVIEW_ID);
 
     }
     
-    
+    /** Called when the activity is paused */
     @Override
     protected void onPause() {
         Log.i(TAG, "[ACTIVITY] onPause");
@@ -135,32 +140,32 @@ public class DeadReckoning extends Activity {
         super.onPause();
     }
 
+    /** Called when the activity is stopped */
     @Override
     protected void onStop() {
         Log.i(TAG, "[ACTIVITY] onStop");
         super.onStop();
     }
 
+    /** Called when the activity is destroyed */
     protected void onDestroy() {
         Log.i(TAG, "[ACTIVITY] onDestroy");
         super.onDestroy();
     }
     
+    /** Called when the activity is restarted */
     protected void onRestart() {
         Log.i(TAG, "[ACTIVITY] onRestart");
         super.onDestroy();
     }
     
-    
-    // create background service connection
+    /** Called when the activity is first created to bind service */
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mService = ((StepService.StepBinder)service).getService();
             mService.registerCallback(mCallback);
             mService.reloadSettings();
-            
         }
-
         public void onServiceDisconnected(ComponentName className) {
             mService = null;
         }
@@ -241,6 +246,7 @@ public class DeadReckoning extends Activity {
         menu.add(0, MENU_SETTINGS, 0, R.string.settings)
         .setIcon(android.R.drawable.ic_menu_preferences)
         .setShortcut('8', 's')
+        // fire up settings activity
         .setIntent(new Intent(this, Settings.class));
         menu.add(0, MENU_QUIT, 0, R.string.quit)
         .setIcon(android.R.drawable.ic_lock_power_off)
@@ -273,7 +279,7 @@ public class DeadReckoning extends Activity {
         return false;
     }
  
-    // TODO: unite all into 1 type of message
+    // Message handling
     private StepService.ICallback mCallback = new StepService.ICallback() {
         public void stepsChanged(int value) {
             mHandler.sendMessage(mHandler.obtainMessage(STEPS_MSG, value, 0));
@@ -281,26 +287,10 @@ public class DeadReckoning extends Activity {
         public void angleChanged(int value) {
         	mHandler.sendMessage(mHandler.obtainMessage(ANGLE_MSG, value, 0));
         }
-        public void paceChanged(int value) {
-            mHandler.sendMessage(mHandler.obtainMessage(PACE_MSG, value, 0));
-        }
-        public void distanceChanged(float value) {
-            mHandler.sendMessage(mHandler.obtainMessage(DISTANCE_MSG, (int)(value*1000), 0));
-        }
-        public void speedChanged(float value) {
-            mHandler.sendMessage(mHandler.obtainMessage(SPEED_MSG, (int)(value*1000), 0));
-        }
-        public void caloriesChanged(float value) {
-            mHandler.sendMessage(mHandler.obtainMessage(CALORIES_MSG, (int)(value), 0));
-        }
     };
     
     private static final int STEPS_MSG = 1;
-    private static final int PACE_MSG = 2;
-    private static final int DISTANCE_MSG = 3;
-    private static final int SPEED_MSG = 4;
-    private static final int CALORIES_MSG = 5;
-    private static final int ANGLE_MSG = 6;
+    private static final int ANGLE_MSG = 2;
     
     private Handler mHandler = new Handler() {
         @Override public void handleMessage(Message msg) {
@@ -317,23 +307,10 @@ public class DeadReckoning extends Activity {
                 	mAngleValueView.setText("" + mAngleValue);
                 	mPathView.addTurn(mAngleValue);
                 	break;
-                case PACE_MSG:
-
-                    break;
-                case DISTANCE_MSG:
-
-                    break;
-                case SPEED_MSG:
-
-                    break;
-                case CALORIES_MSG:
-
-                    break;
                 default:
                     super.handleMessage(msg);
             }
         }
-        
     };
 
 

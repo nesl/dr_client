@@ -6,6 +6,13 @@
     <PreferenceCategory
             android:title="@string/steps_settings_title">
             
+         <EditTextPreference
+                android:key="username"
+                android:title="Username"
+                android:summary="Your unique identifier"
+                android:dialogTitle="Please enter your username"
+                android:defaultValue="johndoe" />
+            
         <ListPreference
                 android:key="sensitivity"
                 android:title="@string/sensitivity_setting"
@@ -39,92 +46,27 @@
                 android:summary="@string/step_length_setting_details"
                 android:dialogTitle="@string/step_length_setting_title"
                 android:defaultValue="20" />
-            
-        <!--<com.inloc.dr.preferences.BodyWeightPreference
-                android:key="body_weight"
-                android:title="@string/body_weight_setting"
-                android:summary="@string/body_weight_setting_details"
-                android:dialogTitle="@string/body_weight_setting_title"
-                android:defaultValue="50" />-->
-            
-        <ListPreference
-                android:key="exercise_type"
-                android:title="@string/exercise_type_setting"
-                android:summary="@string/exercise_type_setting_details"
-                android:entries="@array/exercise_type_preference"
-                android:entryValues="@array/exercise_type_preference_values"
-                android:dialogTitle="@string/exercise_type_setting_title"
-                android:defaultValue="running" />
-                
-        <ListPreference
-                android:key="maintain"
-                android:title="@string/maintain_setting"
-                android:summary="@string/maintain_setting_details"
-                android:entries="@array/maintain_preference"
-                android:entryValues="@array/maintain_preference_values"
-                android:dialogTitle="@string/maintain_setting_title"
-                android:defaultValue="none" />
 
     </PreferenceCategory>
-                
-    <PreferenceCategory
-            android:title="@string/voice_settings_title">
-        <CheckBoxPreference
-                android:key="speak"
-                android:title="@string/voice_setting"
-                android:summary="@string/voice_setting_details"
-                android:defaultValue="false" />
-        <ListPreference
-                android:key="speaking_interval"
-                android:title="@string/speaking_interval_setting"
-                android:summary="@string/speaking_interval_setting_details"
-                android:entries="@array/speaking_interval_preference"
-                android:entryValues="@array/speaking_interval_preference_values"
-                android:dependency="speak"
-                android:defaultValue="1" />
+    
+    
+	<PreferenceCategory
+            android:title="Server Settings">
+            
+        <EditTextPreference
+                android:key="serverip"
+                android:title="Server IP"
+                android:summary="Remote server IP address"
+                android:defaultValue="192.168.1.1" />
+        
+        <EditTextPreference
+                android:key="serverport"
+                android:title="Server Port"
+                android:summary="Remote server port number"
+                android:defaultValue="22050" />
+        
 
-        <PreferenceScreen
-            android:key="tell_what"
-            android:title="@string/tell_what"
-            android:dependency="speak">
-            
-            <PreferenceCategory
-                    android:title="@string/tell_what">
-            
-                <CheckBoxPreference
-                        android:key="tell_steps"
-                        android:title="@string/tell_steps_setting"
-                        android:summary="@string/tell_steps_setting_details" 
-                        android:defaultValue="false" />
-                <CheckBoxPreference
-                        android:key="tell_pace"
-                        android:title="@string/tell_pace_setting"
-                        android:summary="@string/tell_pace_setting_details" 
-                        android:defaultValue="false" />
-                <CheckBoxPreference
-                        android:key="tell_distance"
-                        android:title="@string/tell_distance_setting"
-                        android:summary="@string/tell_distance_setting_details" 
-                        android:defaultValue="false" />
-                <CheckBoxPreference
-                        android:key="tell_speed"
-                        android:title="@string/tell_speed_setting"
-                        android:summary="@string/tell_speed_setting_details" 
-                        android:defaultValue="false" />
-                <CheckBoxPreference
-                        android:key="tell_calories"
-                        android:title="@string/tell_calories_setting"
-                        android:summary="@string/tell_calories_setting_details" 
-                        android:defaultValue="false" />
-                <CheckBoxPreference
-                        android:key="tell_fasterslower"
-                        android:title="@string/tell_fasterslower_setting"
-                        android:summary="@string/tell_fasterslower_setting_details" 
-                        android:defaultValue="false" />
-            </PreferenceCategory>
-        </PreferenceScreen>
     </PreferenceCategory>
-
 
     
 </PreferenceScreen>

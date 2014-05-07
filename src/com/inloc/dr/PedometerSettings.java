@@ -19,6 +19,7 @@
 package com.inloc.dr;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /**
  * Wrapper for {@link SharedPreferences}, handles preferences-related tasks.
@@ -50,91 +51,19 @@ public class PedometerSettings {
         }
     }
     
-    public float getBodyWeight() {
-        try {
-            return Float.valueOf(mSettings.getString("body_weight", "50").trim());
-        }
-        catch (NumberFormatException e) {
-            // TODO: reset value, & notify user somehow
-            return 0f;
-        }
+    public String getServerIP(){
+    	return mSettings.getString("serverip", "192.168.1.1");
     }
+    
+    public String getServerPort(){
+    	return mSettings.getString("serverport", "22050");
+    }
+
 
     public boolean isRunning() {
         return mSettings.getString("exercise_type", "running").equals("running");
     }
 
-    public int getMaintainOption() {
-        String p = mSettings.getString("maintain", "none");
-        return 
-            p.equals("none") ? M_NONE : (
-            p.equals("pace") ? M_PACE : (
-            p.equals("speed") ? M_SPEED : ( 
-            0)));
-    }
-    
-    //-------------------------------------------------------------------
-    // Desired pace & speed: 
-    // these can not be set in the preference activity, only on the main
-    // screen if "maintain" is set to "pace" or "speed" 
-    
-    public int getDesiredPace() {
-        return mSettings.getInt("desired_pace", 180); // steps/minute
-    }
-    public float getDesiredSpeed() {
-        return mSettings.getFloat("desired_speed", 4f); // km/h or mph
-    }
-    public void savePaceOrSpeedSetting(int maintain, float desiredPaceOrSpeed) {
-        SharedPreferences.Editor editor = mSettings.edit();
-        if (maintain == M_PACE) {
-            editor.putInt("desired_pace", (int)desiredPaceOrSpeed);
-        }
-        else
-        if (maintain == M_SPEED) {
-            editor.putFloat("desired_speed", desiredPaceOrSpeed);
-        }
-        editor.commit();
-    }
-    
-    //-------------------------------------------------------------------
-    // Speaking:
-    
-    public boolean shouldSpeak() {
-        return mSettings.getBoolean("speak", false);
-    }
-    public float getSpeakingInterval() {
-        try {
-            return Float.valueOf(mSettings.getString("speaking_interval", "1"));
-        }
-        catch (NumberFormatException e) {
-            // This could not happen as the value is selected from a list.
-            return 1;
-        }
-    }
-    public boolean shouldTellSteps() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_steps", false);
-    }
-    public boolean shouldTellPace() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_pace", false);
-    }
-    public boolean shouldTellDistance() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_distance", false);
-    }
-    public boolean shouldTellSpeed() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_speed", false);
-    }
-    public boolean shouldTellCalories() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_calories", false);
-    }
-    public boolean shouldTellFasterslower() {
-        return mSettings.getBoolean("speak", false) 
-        && mSettings.getBoolean("tell_fasterslower", false);
-    }
     
     public boolean wakeAggressively() {
         return mSettings.getString("operation_level", "run_in_background").equals("wake_up");

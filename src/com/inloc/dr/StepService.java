@@ -262,11 +262,7 @@ public class StepService extends Service implements LocationListener{
 
     public interface ICallback {
         public void stepsChanged(int value);
-        public void paceChanged(int value);
         public void angleChanged(int value);
-        public void distanceChanged(float value);
-        public void speedChanged(float value);
-        public void caloriesChanged(float value);
     }
     
     private ICallback mCallback;
@@ -440,12 +436,15 @@ public class StepService extends Service implements LocationListener{
 	}
 	
 	private class DoPost extends AsyncTask<Void, Void, Boolean>{
-		public final String NESL_IP = "http://172.17.5.253:22056";
+		public final String SERVER_IP = mPedometerSettings.getServerIP();
+		public final String SERVER_PORT = mPedometerSettings.getServerPort();
+		public final String SERVER_ADDRESS = "http://" + SERVER_IP.trim() + ":" + SERVER_PORT.trim();
 		public final String msg_storage = "step_service_post.db";
 		public File database;
 		public DoPost(){
 			database = new File(Environment.getExternalStorageDirectory(),msg_storage);
 		}
+
 		@Override
 		protected Boolean doInBackground(Void ... nothing) {
 			if(!StepService.isOnline()){
@@ -467,7 +466,7 @@ public class StepService extends Service implements LocationListener{
 			// Acquired all lines to post
 			int processed = 0;
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(NESL_IP);
+			HttpPost httppost = new HttpPost(SERVER_ADDRESS);
 			for(String postVars : messages){
 				try {
 					httppost.setEntity(new StringEntity(postVars));
