@@ -469,36 +469,46 @@ public class StepService extends Service implements LocationListener{
 				return false;
 			}
 			ArrayList<String> messages = new ArrayList<String>();
-			try {
-				Scanner s = new Scanner(record_files.get(0));
-				while(s.hasNextLine()){
-					messages.add(s.nextLine());
+
+			for(int fidx=0; fidx<record_files.size(); fidx++){
+				try {
+					Scanner s = new Scanner(record_files.get(fidx));
+					while(s.hasNextLine()){
+						messages.add(s.nextLine());
+					}
+					s.close();
+				} catch (FileNotFoundException e) {
+					try {
+						database.createNewFile();
+					} catch (IOException e1) {e1.printStackTrace();}
 				}
-				s.close();
-			} catch (FileNotFoundException e) {
-				try {
-					database.createNewFile();
-				} catch (IOException e1) {e1.printStackTrace();}
-			}
-			if(messages.size() == 0){return true;}
-			// Acquired all lines to post
-			int processed = 0;
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(SERVER_ADDRESS);
-			for(String postVars : messages){
-				try {
-					httppost.setEntity(new StringEntity(postVars));
-					HttpResponse resp = httpclient.execute(httppost);
-					Log.i(TAG,"Sending record: " + postVars + "\nResponse: " + resp.getStatusLine().getStatusCode());
-					resp.getEntity().consumeContent();
-					processed++;
-				} catch (UnsupportedEncodingException e) {e.printStackTrace();}
-				catch (ClientProtocolException e) {e.printStackTrace();}
-				catch (IOException e) {e.printStackTrace();}
-			}
-			Log.i(TAG, "Processed " + processed + " records.");
-			if(processed == RECORDS_PER_FILE){
-				record_files.remove(0);
+				// if messages queued are less than message log size, return
+				if(messages.size() < RECORDS_PER_FILE){return true;}
+				// Acquired all lines to post
+				int processed = 0;
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost(SERVER_ADDRESS);
+				for(String postVars : messages){
+					try {
+						httppost.setEntity(new StringEntity(postVars));
+						HttpResponse resp = httpclient.execute(httppost);
+						Log.i(TAG,"Sending record: " + postVars + "\nResponse: " + resp.getStatusLine().getStatusCode());
+						resp.getEntity().consumeContent();
+						processed++;
+					} catch (UnsupportedEncodingException e) {e.printStackTrace();}
+					catch (ClientProtocolException e) {e.printStackTrace();}
+					catch (IOException e) {e.printStackTrace();}
+				}
+				Log.i(TAG, "Processed " + processed + " records.");
+				if(processed == RECORDS_PER_FILE){
+					// remove file from storage
+					boolean deleted = record_files.get(fidx).delete();
+					if( deleted == false ){
+						Log.d(TAG, "difficulty deleting log file");
+					}
+					// remove record of file
+					record_files.remove(fidx);
+				}
 			}
 			// For now assume that all lines were correctly processed.
 			return true;
