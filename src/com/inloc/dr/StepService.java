@@ -332,6 +332,7 @@ public class StepService extends Service implements LocationListener{
     		String angle_post = "";
     		try{
     			angle_post += 
+    					URLEncoder.encode("user","UTF-8") + "=" + URLEncoder.encode(mPedometerSettings.getUsername(), "UTF-8") + "&" +
     					URLEncoder.encode("time","UTF-8") + "=" + URLEncoder.encode("" + System.currentTimeMillis(),"UTF-8") + "&" +
     					URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode(POST_TYPE_DR,"UTF-8") + "&" + 
     					URLEncoder.encode("val1","UTF-8") + "=" + URLEncoder.encode("" + value,"UTF-8") + "&" +
@@ -410,6 +411,7 @@ public class StepService extends Service implements LocationListener{
 		String gps_loc = "";
 		try{
 		gps_loc += 
+			URLEncoder.encode("user","UTF-8") + "=" + URLEncoder.encode(mPedometerSettings.getUsername(), "UTF-8") + "&" +
 			URLEncoder.encode("time","UTF-8") + "=" + URLEncoder.encode("" + System.currentTimeMillis(),"UTF-8") + "&" + 
 			URLEncoder.encode("type","UTF-8") + "=" + URLEncoder.encode(POST_TYPE_GPS,"UTF-8") + "&" + 
 			URLEncoder.encode("val1","UTF-8") + "=" + URLEncoder.encode("" + location.getLatitude(),"UTF-8") + "&" + 
@@ -495,10 +497,13 @@ public class StepService extends Service implements LocationListener{
 						Log.i(TAG,"Sending record: " + postVars + "\nResponse: " + resp.getStatusLine().getStatusCode());
 						resp.getEntity().consumeContent();
 						processed++;
-					} catch (UnsupportedEncodingException e) {e.printStackTrace();}
-					catch (ClientProtocolException e) {e.printStackTrace();}
-					catch (IOException e) {e.printStackTrace();}
+					} catch (Exception e) {
+						// catch-all
+						Log.i(TAG, "unable to reach server!");
+						break;
+					}
 				}
+
 				Log.i(TAG, "Processed " + processed + " records.");
 				if(processed == RECORDS_PER_FILE){
 					// remove file from storage

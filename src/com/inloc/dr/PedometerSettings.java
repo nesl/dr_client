@@ -58,6 +58,10 @@ public class PedometerSettings {
     public String getServerPort(){
     	return mSettings.getString("serverport", "22050");
     }
+    
+    public String getUsername(){
+    	return mSettings.getString("username", "unknown");
+    }
 
 
     public boolean isRunning() {
