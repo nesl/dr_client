@@ -55,6 +55,9 @@ public class DeadReckoning extends Activity {
     // dead reckoning views
     private int mStepValue;
     private int mAngleValue;
+    // estimated orientation
+    private int mOrientation;
+    private TextView mOrientationView;
     // Set when user selected Quit from menu, can be used by onPause, onStop, onDestroy
     private boolean mQuitting = false; 
     private boolean mIsRunning;
@@ -63,7 +66,6 @@ public class DeadReckoning extends Activity {
     // path canvas
     private PathView mPathView;
     private final int PATHVIEW_ID = 100;
-
     
     /** Called when the activity is first created. */
     @Override
@@ -73,6 +75,7 @@ public class DeadReckoning extends Activity {
         // initialize variables
         mStepValue = 0;
         mAngleValue = 0;
+        mOrientation = 0;
         
         // set the view
         setContentView(R.layout.main);
@@ -101,7 +104,7 @@ public class DeadReckoning extends Activity {
         // get default preferences
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
         mPedometerSettings = new PedometerSettings(mSettings);
-                
+        
         // Read from preferences if the service was running on the last onPause
         mIsRunning = mPedometerSettings.isServiceRunning();
         
@@ -119,6 +122,7 @@ public class DeadReckoning extends Activity {
         // re-hook the UI views
         mStepValueView     = (TextView) findViewById(R.id.step_value);
         mAngleValueView	   = (TextView) findViewById(R.id.angle_value);
+        mOrientationView   = (TextView) findViewById(R.id.orientation);
         mPathView          = (PathView) findViewById(PATHVIEW_ID);
 
     }
@@ -209,12 +213,14 @@ public class DeadReckoning extends Activity {
         else {
             mStepValueView.setText("0");
             mAngleValueView.setText("0");
+            mOrientationView.setText("?");
 
             SharedPreferences state = getSharedPreferences("state", 0);
             SharedPreferences.Editor stateEditor = state.edit();
             if (updateDisplay) {
                 stateEditor.putInt("steps", 0);
                 stateEditor.putInt("angle", 0);
+                stateEditor.putInt("orientation", 0);
                 stateEditor.commit();
             }
         }
@@ -287,10 +293,18 @@ public class DeadReckoning extends Activity {
         public void angleChanged(int value) {
         	mHandler.sendMessage(mHandler.obtainMessage(ANGLE_MSG, value, 0));
         }
+        public void orientChanged(int value) {
+        	mHandler.sendMessage(mHandler.obtainMessage(ORIENT_MSG, value, 0));
+        }
     };
     
     private static final int STEPS_MSG = 1;
     private static final int ANGLE_MSG = 2;
+    private static final int ORIENT_MSG = 3;
+    private static final int ORIENT_DFT = 0;
+    private static final int ORIENT_OFF = 1;
+    private static final int ORIENT_HND = 2;
+    private static final int ORIENT_BDY = 3;
     
     private Handler mHandler = new Handler() {
         @Override public void handleMessage(Message msg) {
@@ -307,6 +321,24 @@ public class DeadReckoning extends Activity {
                 	mAngleValueView.setText("" + mAngleValue);
                 	mPathView.addTurn(mAngleValue);
                 	break;
+                case ORIENT_MSG:
+                	mOrientation = (int)msg.arg1;
+                	switch(mOrientation){
+	                	case ORIENT_DFT:
+	                		mOrientationView.setText("Unknown");
+	                		break;
+	                	case ORIENT_BDY:
+	                		mOrientationView.setText("On Body (pocket)");
+	                		break;
+	                	case ORIENT_HND:
+	                		mOrientationView.setText("In Hand");
+	                		break;
+	                	case ORIENT_OFF:
+	                		mOrientationView.setText("Still");
+	                		break;
+	                	default:
+	                		mOrientationView.setText("Unknown State");
+                	}
                 default:
                     super.handleMessage(msg);
             }

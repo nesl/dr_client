@@ -74,15 +74,52 @@
 
     </LinearLayout>
 
-    <!-- Desired pace/speed row -->
+        <LinearLayout android:id="@+id/row_2"
+        android:orientation="horizontal" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:paddingBottom="@dimen/row_spacing">
+
+        <LinearLayout android:id="@+id/box_orientation"
+            android:orientation="vertical"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingRight="@dimen/margin"
+            android:layout_weight="1">
+        
+            <TextView android:id="@+id/orientation"
+                android:textSize="@dimen/value"
+                android:layout_width="fill_parent" 
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal" 
+                android:background="@color/display_background" 
+                android:paddingLeft="@dimen/padding" 
+                android:paddingRight="@dimen/padding" 
+                android:paddingTop="@dimen/padding"
+                android:text=""/>
+            
+            <TextView android:id="@+id/orientation_text"
+                android:gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/units" 
+                android:text="Estimated Orientation" 
+                android:background="@color/display_background" 
+                android:paddingBottom="@dimen/padding"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/canvas_row"
-        android:paddingTop="@dimen/row_spacing" 
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_weight="1.79"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/row_spacing" >
     
         <!-- Line Plot goes here -->
    

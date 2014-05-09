@@ -65,8 +65,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-
-
 /**
  * This is an example of implementing an application service that runs locally
  * in the same process as the application.  The {@link StepServiceController}
@@ -94,8 +92,12 @@ public class StepService extends Service implements LocationListener{
     private DataRecorder dtr;
     // private StepBuzzer mStepBuzzer; // used for debugging
     private StepDisplayer mStepDisplayer;
+    // turn detection
     private TurnDetector mTurnDetector;
     private TurnNotifier mTurnNotifier;
+    // orientation detection
+    private OrientationDetector mOrientDetector;
+    private OrientationNotifier mOrientNotifier;
     
     private PowerManager.WakeLock wakeLock;
     private NotificationManager mNM;
@@ -103,11 +105,7 @@ public class StepService extends Service implements LocationListener{
     private int lSteps;
     private int mSteps;
     private int mAngle;
-    private int mPace;
-    private float mDistance;
-    private float mSpeed;
-    private float mCalories;
-    
+    private int mOrient;
 
     private static final int RECORDS_PER_FILE = 10;
     private int records = 0;
@@ -168,6 +166,11 @@ public class StepService extends Service implements LocationListener{
         mTurnNotifier.addListener(mAngleListener);
         mTurnDetector.addTurnListener(mTurnNotifier);
         
+        mOrientDetector = new OrientationDetector();
+        mOrientNotifier = new OrientationNotifier();
+        mOrientNotifier.addListener(mOrientListener);
+        mOrientDetector.addOrientationListener(mOrientNotifier);
+        
         registerDetector();
 
         // Register our receiver for the ACTION_SCREEN_OFF action. This will make our receiver
@@ -227,10 +230,6 @@ public class StepService extends Service implements LocationListener{
         mStateEditor = mState.edit();
         mStateEditor.putInt("steps", mSteps);
         mStateEditor.putInt("angle", mAngle);
-        mStateEditor.putInt("pace", mPace);
-        mStateEditor.putFloat("distance", mDistance);
-        mStateEditor.putFloat("speed", mSpeed);
-        mStateEditor.putFloat("calories", mCalories);
         mStateEditor.commit();
         
         mNM.cancel(R.string.app_name);
@@ -248,17 +247,20 @@ public class StepService extends Service implements LocationListener{
     }
 
     private void registerDetector() {
-        mSensor = mSensorManager.getDefaultSensor(
-            Sensor.TYPE_ACCELEROMETER /*| 
-            Sensor.TYPE_MAGNETIC_FIELD | 
-            Sensor.TYPE_ORIENTATION*/);
+    	// step detector & orientation detector
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(mStepDetector,
             mSensor,
             SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(mOrientDetector,
+        	mSensor,
+        	SensorManager.SENSOR_DELAY_GAME);
+        // turn detector
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         mSensorManager.registerListener(mTurnDetector,
-        		mSensor,
-        		SensorManager.SENSOR_DELAY_GAME);
+        	mSensor,
+        	SensorManager.SENSOR_DELAY_GAME);
+ 
     }
 
     private void unregisterDetector() {
@@ -280,6 +282,7 @@ public class StepService extends Service implements LocationListener{
     public interface ICallback {
         public void stepsChanged(int value);
         public void angleChanged(int value);
+        public void orientChanged(int value);
     }
     
     private ICallback mCallback;
@@ -324,6 +327,25 @@ public class StepService extends Service implements LocationListener{
                 mCallback.stepsChanged(mSteps);
             }
         }
+    };
+    
+    private OrientationNotifier.Listener mOrientListener = new OrientationNotifier.Listener(){
+
+		@Override
+		public void onChange(int value) {
+			mOrient = value;
+    		passValue();
+			
+		}
+
+		@Override
+		public void passValue() {
+    		Log.i("OrientDetector","mOrientListener");
+    		if(mCallback != null){
+    			mCallback.orientChanged(mOrient);
+    		}
+		}
+    	
     };
 
     
