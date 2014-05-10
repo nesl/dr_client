@@ -13,6 +13,9 @@
                 android:dialogTitle="Please enter your username"
                 android:defaultValue="johndoe" />
             
+        
+        <!--
+        
         <ListPreference
                 android:key="sensitivity"
                 android:title="@string/sensitivity_setting"
@@ -21,6 +24,7 @@
                 android:entryValues="@array/sensitivity_preference_values"
                 android:dialogTitle="@string/sensitivity_setting_title"
                 android:defaultValue="30" />
+        -->
 
         <ListPreference
                 android:key="operation_level"

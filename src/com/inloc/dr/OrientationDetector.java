@@ -74,9 +74,7 @@ public class OrientationDetector implements SensorEventListener{
 	    				// filter
 	    				double var_new = (filter_alpha)*var_last + (1-filter_alpha)*totalVar;
 	    				var_last = var_new;
-	    				
-	    				Log.i("test","var: " + Double.toString(var_new));
-	    				
+	    					    				
 	    				// ========== classify position =========
 	    				if( var_new < 0.20){
 	    					orient = 1;

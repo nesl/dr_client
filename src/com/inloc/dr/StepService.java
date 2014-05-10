@@ -334,13 +334,14 @@ public class StepService extends Service implements LocationListener{
 		@Override
 		public void onChange(int value) {
 			mOrient = value;
+			// update stepDetector
+			mStepDetector.changeOrientation(value);
     		passValue();
 			
 		}
 
 		@Override
 		public void passValue() {
-    		Log.i("OrientDetector","mOrientListener");
     		if(mCallback != null){
     			mCallback.orientChanged(mOrient);
     		}

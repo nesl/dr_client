@@ -44,6 +44,10 @@ public class StepDetector implements SensorEventListener
     private float   mLastDiff[] = new float[3*2];
     private int     mLastMatch = -1;
     
+    // backoff timer to reduce false positives
+    private final int BACKOFF_DELAY = 50;
+    private int timerBackoff = 0;
+    
     private ArrayList<StepListener> mStepListeners = new ArrayList<StepListener>();
     
     public StepDetector() {
@@ -55,6 +59,29 @@ public class StepDetector implements SensorEventListener
     
     public void setSensitivity(float sensitivity) {
         mLimit = sensitivity; // 1.97  2.96  4.44  6.66  10.00  15.00  22.50  33.75  50.62
+    }
+    
+    public void changeOrientation(int orient){
+        final int ORIENT_DFT = 0;
+        final int ORIENT_OFF = 1;
+        final int ORIENT_HND = 2;
+        final int ORIENT_BDY = 3;
+        
+        switch(orient){
+	        case ORIENT_DFT:
+	        case ORIENT_OFF:
+	        	setSensitivity(50);
+	        	break;
+	        case ORIENT_HND:
+	        	setSensitivity(2);
+	        	break;
+	        case ORIENT_BDY:
+	        	setSensitivity(7);
+	        	break;
+	        default:
+	        	setSensitivity(50);
+        }
+
     }
     
     public void addStepListener(StepListener sl) {
